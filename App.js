@@ -1,20 +1,36 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import DrawerNavigator from './component/DrawerNavigator';
+import { createStackNavigator } from '@react-navigation/stack';
+import LoginScreen from './pages/LoginScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthProvider, useAuth } from './context/context';
+import Router from './component/Router';
 
-export default function App() {
+const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const Stack = createStackNavigator();
+  // const data = useAuth();
+  // console.log(data)
+  
+  useEffect(() => {
+    AsyncStorage.getItem("token").then((value) => { 
+      const token = JSON.parse(value);
+      if (token !== null) {
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
+    }).catch((error) => {
+      console.error("Error retrieving token:", error);
+    });
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <AuthProvider>
+      <Router/>
+    </AuthProvider>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
